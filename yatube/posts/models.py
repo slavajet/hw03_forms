@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+# Все было отсортировано с помощью isort изначально
+# Повторная сортировка ничего не поменяла
 
 User = get_user_model()
 
