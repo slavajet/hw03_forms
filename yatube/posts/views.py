@@ -8,7 +8,7 @@ from .utils import paginate
 
 def index(request):
     template = 'posts/index.html'
-    post_list = Post.objects.all().order_by('-pub_date')
+    post_list = Post.objects.all()
     context = {
         'page_obj': paginate(request, post_list),
     }
@@ -18,7 +18,7 @@ def index(request):
 def group_posts(request, slug):
     template = 'posts/group_list.html'
     group = get_object_or_404(Group, slug=slug)
-    post_list = group.posts.all().order_by('-pub_date')
+    post_list = group.posts.all()
     context = {
         'group': group,
         'posts': post_list,

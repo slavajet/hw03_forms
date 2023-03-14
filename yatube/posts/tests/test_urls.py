@@ -19,6 +19,7 @@ class PostModelTest(TestCase):
         cls.post = Post.objects.create(
             author=cls.user,
             text='Тестовый пост',
+            id=1,
         )
 
     def setUp(self):
@@ -37,7 +38,7 @@ class PostModelTest(TestCase):
             '/create/': 'posts/create_post.html',
         }
         for address, template in templates_url_names.items():
-            with self.subTest(template=template):
+            with self.subTest(address=address):
                 response = self.authorized_client.get(address)
                 self.assertTemplateUsed(response, template)
 
