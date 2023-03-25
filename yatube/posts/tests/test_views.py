@@ -106,7 +106,8 @@ class PostModelTest(TestCase):
         self.assertIsInstance(form, PostForm)
         self.assertEqual(response.status_code, 200)
         for field_name, field_type in self.form_fields.items():
-            self.assertIsInstance(form.fields[field_name], field_type)
+            with self.subTest(field_name=field_name):
+                self.assertIsInstance(form.fields[field_name], field_type)
 
     def test_post_edit_show_correct_context(self):
         """Cловарь contex соответствует ожиданиям на странице 'post_edit'"""
@@ -116,7 +117,8 @@ class PostModelTest(TestCase):
         self.assertEqual(form.instance, PostModelTest.posts[1])
         self.assertEqual(response.status_code, 200)
         for field_name, field_type in self.form_fields.items():
-            self.assertIsInstance(form.fields[field_name], field_type)
+            with self.subTest(field_name=field_name):
+                self.assertIsInstance(form.fields[field_name], field_type)
 
     def test_paginator(self):
         """Paginator показывает правильное кол-во постов на страницах
@@ -141,3 +143,22 @@ class PostModelTest(TestCase):
                 self.assertEqual(len(
                     response.context['page_obj']
                 ), expected_num_posts)
+
+    def test_post_appears_on_pages(self):
+        """Пост отображается на страницах 'index', 'group_list' и 'profile'"""
+        response = self.authorized_client.get(reverse('posts:index'))
+        self.assertContains(response, PostModelTest.posts[1].text)
+        response = self.authorized_client.get(reverse('posts:group_list', kwargs={'slug': PostModelTest.group.slug}))
+        self.assertContains(response, PostModelTest.posts[1].text)
+        response = self.authorized_client.get(reverse('posts:profile', kwargs={'username': PostModelTest.user.username}))
+        self.assertContains(response, PostModelTest.posts[1].text)
+
+    def test_post_does_not_appear_on_wrong_group_page(self):
+        """Пост не отображается в неправильной группе"""
+        group2 = Group.objects.create(
+            title='Неправильная группа',
+            slug='wrong_slug',
+            description='Описание неправильной группы',
+        )
+        response = self.authorized_client.get(reverse('posts:group_list', kwargs={'slug': group2.slug}))
+        self.assertNotContains(response, PostModelTest.posts[1].text)
